@@ -59,7 +59,7 @@ npm install
 
 3. Run the frontend server
 
-``` sh
+```sh
 
 npm start
 The frontend server will start on http://localhost:3000.
