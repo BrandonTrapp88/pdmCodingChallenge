@@ -42,7 +42,7 @@ cd (FileName)/api
 go run main.go repository.go handlers.go routers.go
 
 The backend server will start on http://localhost:1710.
-
+```
 ### Frontend Setup
 1. Open another Terminal
    Navigate to the frontend directory
@@ -51,19 +51,19 @@ The backend server will start on http://localhost:1710.
 
 cd ../frontend
 
-
+```
 2. Install npm dependencies
 
 ```sh
 npm install
-
+```
 3. Run the frontend server
 
 ```sh
 
 npm start
 The frontend server will start on http://localhost:3000.
-
+``
 ### Project Structure
 ## Backend
 main.go: Entry point of the application
