@@ -43,34 +43,34 @@ go run main.go repository.go handlers.go routers.go
 
 The backend server will start on http://localhost:1710.
 
-Frontend Setup
-Open another Terminal
-Navigate to the frontend directory
+### Frontend Setup
+1. Open another Terminal
+   Navigate to the frontend directory
 
-sh
-Copy code
+```sh
+
 cd ../frontend
 
 
-Install npm dependencies
+2. Install npm dependencies
 
-sh
-Copy code
+```sh
 npm install
-Run the frontend server
 
-sh
-Copy code
+3. Run the frontend server
+
+``` sh
+
 npm start
 The frontend server will start on http://localhost:3000.
 
-Project Structure
-Backend
+### Project Structure
+## Backend
 main.go: Entry point of the application
 repository.go: In-memory data storage with versioning
 handlers.go: HTTP handlers for CRUD operations 
 routers.go: Router configuration
-Frontend
+## Frontend
 src/
 AddPartForm.js: Form for adding and editing parts
 PartsList.js: Component for listing parts and handling part operations
@@ -78,7 +78,7 @@ SearchPage.js: Component for searching parts
 NavBar.js: Navigation bar
 App.js: Main application component
 
-API Endpoints
+## API Endpoints
 Parts
 POST /parts: Create a new part
 GET /parts: List all parts
