@@ -63,7 +63,7 @@ npm install
 
 npm start
 The frontend server will start on http://localhost:3000.
-``
+```
 ### Project Structure
 ## Backend
 main.go: Entry point of the application
