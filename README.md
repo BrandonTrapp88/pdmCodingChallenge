@@ -32,8 +32,8 @@ This project is a Vehicle Parts Inventory Management system built with Go and Re
    
 2. Install Go dependencies
 
-```sh
-go mod tidy
+  ```sh
+  go mod tidy
 
 3. Run the backend server
 
