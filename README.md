@@ -1,4 +1,4 @@
-# Vehicle Parts Inventory Management
+# Coding Challenge
 
 This project is a Vehicle Parts Inventory Management system built with Go and React. It allows users to manage an inventory of vehicle parts, including creating, updating, deleting, and retrieving parts, as well as handling versioning of parts data.
 
