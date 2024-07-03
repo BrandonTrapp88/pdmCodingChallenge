@@ -29,12 +29,12 @@ This project is a Vehicle Parts Inventory Management system built with Go and Re
 1. Clone the repository
    ```sh
    git clone https://github.com/BrandonTrapp88/pdmCodingChallenge.git
-   
+   ```
 2. Install Go dependencies
 
   ```sh
   go mod tidy
-
+```
 3. Run the backend server
 
 ```sh
