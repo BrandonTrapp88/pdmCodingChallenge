@@ -28,19 +28,19 @@ This project is a Vehicle Parts Inventory Management system built with Go and Re
 
 1. Clone the repository
    ```sh
-   git clone https://github.com/yourusername/vehicle-parts-inventory.git
+   git clone https://github.com/BrandonTrapp88/pdmCodingChallenge.git
    
-Install Go dependencies
+2. Install Go dependencies
 
-sh
-Copy code
+```sh
 go mod tidy
-Run the backend server
 
-sh
-Copy code
+3. Run the backend server
+
+```sh
 cd (FileName)/api
 go run main.go repository.go handlers.go routers.go
+
 The backend server will start on http://localhost:1710.
 
 Frontend Setup
