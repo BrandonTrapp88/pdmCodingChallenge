@@ -5,10 +5,9 @@ This project is a Vehicle Parts Inventory Management system built with Go and Re
 ## Features
 
 - Add, update, delete, and list vehicle parts
-- Upload images for vehicle parts
 - Versioning of parts data
 - Retrieve specific versions of parts data
-- Search for parts by name
+
 
 ## Technologies Used
 
@@ -51,6 +50,8 @@ Navigate to the frontend directory
 sh
 Copy code
 cd ../frontend
+
+
 Install npm dependencies
 
 sh
@@ -76,6 +77,7 @@ PartsList.js: Component for listing parts and handling part operations
 SearchPage.js: Component for searching parts
 NavBar.js: Navigation bar
 App.js: Main application component
+
 API Endpoints
 Parts
 POST /parts: Create a new part
