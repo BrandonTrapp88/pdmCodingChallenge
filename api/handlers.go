@@ -47,11 +47,13 @@ func GetPartHandler(repository *Repository) http.HandlerFunc {
 func ListPartsHandler(repository *Repository) http.HandlerFunc {
 	return func(w http.ResponseWriter, r *http.Request) {
 		parts, err := repository.ListParts()
-		json.NewEncoder(w).Encode(parts)
 		if err != nil {
-			http.Error(w, err.Error(), http.StatusNotFound)
+			http.Error(w, err.Error(), http.StatusInternalServerError)
 			return
 		}
+
+		w.Header().Set("Content-Type", "application/json")
+		json.NewEncoder(w).Encode(parts)
 	}
 }
 

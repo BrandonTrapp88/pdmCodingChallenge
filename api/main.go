@@ -11,7 +11,7 @@ import (
 
 func main() {
 	// Set up the database connection
-	dsn := "root:blue1234@tcp(localhost:3306)/inventory"
+	dsn := "root:blue1234@tcp(localhost:3306)/vehicle_parts_db"
 	db, err := sql.Open("mysql", dsn)
 	if err != nil {
 		log.Fatalf("Failed to connect to database: %v", err)

@@ -1,5 +1,6 @@
 package main
 
+/*
 type Part struct {
 	ID          string            `json:"id"`
 	Name        string            `json:"name"`
@@ -28,3 +29,4 @@ type PartVersion struct {
 	Timestamp string `json:"timestamp"`
 	Part      Part   `json:"part"`
 }
+*/
