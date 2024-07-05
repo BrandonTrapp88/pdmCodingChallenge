@@ -70,15 +70,14 @@ main.go: Entry point of the application
 repository.go: In-memory data storage with versioning
 handlers.go: HTTP handlers for CRUD operations 
 routers.go: Router configuration
-## Frontend
+##Frontend
 src/
 AddPartForm.js: Form for adding and editing parts
 PartsList.js: Component for listing parts and handling part operations
 SearchPage.js: Component for searching parts
 NavBar.js: Navigation bar
 App.js: Main application component
-
-## API Endpoints
+##API Endpoints
 Parts
 POST /parts: Create a new part
 GET /parts: List all parts
