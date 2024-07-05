@@ -13,7 +13,7 @@ This project is a Vehicle Parts Inventory Management system built with Go and Re
 
 - **Backend**: Go, Gorilla Mux
 - **Frontend**: React, Axios
-- **Database**: In-memory storage (can be extended to persistent storage)
+- **Database**: MySql (vehicle_parts_db)
   
 
 ## Prerequisites
