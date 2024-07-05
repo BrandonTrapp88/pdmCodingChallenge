@@ -72,16 +72,16 @@ handlers.go: HTTP handlers for CRUD operations
 routers.go: Router configuration
 ## Frontend
 src/
-AddPartForm.js: Form for adding and editing parts
-PartsList.js: Component for listing parts and handling part operations
-SearchPage.js: Component for searching parts
-NavBar.js: Navigation bar
-App.js: Main application component
+AddPartForm.js: Form for adding and editing parts,
+PartsList.js: Component for listing parts and handling part operations,
+SearchPage.js: Component for searching parts,
+NavBar.js: Navigation bar,
+App.js: Main application component,
 ## API Endpoints
 Parts
-POST /parts: Create a new part
-GET /parts: List all parts
-GET /parts/{id}: Get a part by ID
-PUT /parts/{id}: Update a part by ID
-DELETE /parts/{id}: Delete a part by ID
-GET /parts/{id}/version/{version}: Get a specific version of a part by ID and version
+POST /parts: Create a new part,
+GET /parts: List all parts,
+GET /parts/{id}: Get a part by ID,
+PUT /parts/{id}: Update a part by ID,
+DELETE /parts/{id}: Delete a part by ID,
+GET /parts/{id}/version/{version}: Get a specific version of a part by ID and version,
