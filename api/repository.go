@@ -106,7 +106,12 @@ func (r *Repository) createTables() error {
 	return nil
 }
 
-// function to create Part and insert information into db
+// CreatePart Creates Part stores it in db
+// @Summary      Creates Part
+// @Description  Creates Part stores it in db
+// @Tags         parts
+// @Accept       part struct
+// @Produce      map[]
 func (r *Repository) CreatePart(part Part) (string, error) {
 	// Check if part with same details exists
 	existingPart, err := r.findPartByDetails(part)
@@ -198,7 +203,12 @@ func (r *Repository) findPartByDetails(part Part) (Part, error) {
 	return existingPart, nil
 }
 
-// get part from db
+// GetPart Creates Part stores it in db
+// @Summary      Get Part
+// @Description  Get part from db
+// @Tags         parts/{id}
+// @Accept       id
+// @Produce      part
 func (r *Repository) GetPart(id string) (Part, error) {
 	query := `SELECT id, name, images, sku, description, price, attributes, fitment_data, location, shipment, metadata FROM parts WHERE id = ?`
 	row := r.db.QueryRow(query, id)
@@ -287,7 +297,12 @@ func (r *Repository) UpdatePart(id string, part Part) error {
 	return nil
 }
 
-// Delete part function
+// DeletePart Deletes Part from db
+// @Summary      Delete Part
+// @Description  Delete part from db
+// @Tags         parts/{id}
+// @Accept       id
+// @Produce      part
 func (r *Repository) DeletePart(id string) error {
 	query := `DELETE FROM parts WHERE id = ?`
 	_, err := r.db.Exec(query, id)
@@ -343,7 +358,12 @@ func (r *Repository) ListParts() ([]Part, error) {
 	return parts, nil
 }
 
-// Get Part Version
+// GetPartVersion Get Part version from db
+// @Summary      Get Part version
+// @Description  Get part version from db
+// @Tags         /parts/{id}/version/{version}
+// @Accept       id, version
+// @Produce      part
 func (r *Repository) GetPartVersion(id string, version int) (Part, error) {
 	query := `SELECT name, images, sku, description, price, attributes, fitment_data, location, shipment, metadata FROM part_versions WHERE part_id = ? AND version = ?`
 	row := r.db.QueryRow(query, id, version)
@@ -376,7 +396,12 @@ func (r *Repository) GetPartVersion(id string, version int) (Part, error) {
 	return part, nil
 }
 
-// list Part Version
+// ListPartVersion List Part version from db
+// @Summary      List Part version
+// @Description  List part version from db
+// @Tags         /parts/{id}/versions
+// @Accept       id, version
+// @Produce      part
 func (r *Repository) ListPartVersions(id string) ([]PartVersion, error) {
 	query := `SELECT version, timestamp FROM part_versions WHERE part_id = ? ORDER BY version`
 	rows, err := r.db.Query(query, id)
