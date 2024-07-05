@@ -1,9 +1,5 @@
 package main
 
-import (
-	"time"
-)
-
 type Part struct {
 	ID          string            `json:"id"`
 	Name        string            `json:"name"`
@@ -16,6 +12,8 @@ type Part struct {
 	Location    string            `json:"location"`
 	Shipment    ShipmentInfo      `json:"shipment"`
 	Metadata    map[string]string `json:"metadata"`
+	Version     int               `json:"version"`
+	Timestamp   string            `json:"timestamp"`
 }
 
 type ShipmentInfo struct {
@@ -24,8 +22,9 @@ type ShipmentInfo struct {
 	Hazardous bool    `json:"hazardous"`
 	Fragile   bool    `json:"fragile"`
 }
+
 type PartVersion struct {
-	Version   int       `json:"version"`
-	Timestamp time.Time `json:"timestamp"`
-	Part      Part      `json:"part"`
+	Version   int    `json:"version"`
+	Timestamp string `json:"timestamp"`
+	Part      Part   `json:"part"`
 }

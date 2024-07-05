@@ -8,6 +8,7 @@ import (
 	"github.com/gorilla/mux"
 )
 
+// Function to Create Part
 func CreatePartHandler(repository *Repository) http.HandlerFunc {
 	return func(w http.ResponseWriter, r *http.Request) {
 		var part Part
@@ -22,13 +23,14 @@ func CreatePartHandler(repository *Repository) http.HandlerFunc {
 			return
 		}
 
-		part.ID = id // Ensure the ID is set in the response
+		part.ID = id
 
 		w.WriteHeader(http.StatusCreated)
 		json.NewEncoder(w).Encode(part)
 	}
 }
 
+// GetPart Api call Handler
 func GetPartHandler(repository *Repository) http.HandlerFunc {
 	return func(w http.ResponseWriter, r *http.Request) {
 		id := mux.Vars(r)["id"]
@@ -44,11 +46,16 @@ func GetPartHandler(repository *Repository) http.HandlerFunc {
 
 func ListPartsHandler(repository *Repository) http.HandlerFunc {
 	return func(w http.ResponseWriter, r *http.Request) {
-		parts := repository.ListParts()
+		parts, err := repository.ListParts()
 		json.NewEncoder(w).Encode(parts)
+		if err != nil {
+			http.Error(w, err.Error(), http.StatusNotFound)
+			return
+		}
 	}
 }
 
+// UpdatePart Api Handler
 func UpdatePartHandler(repository *Repository) http.HandlerFunc {
 	return func(w http.ResponseWriter, r *http.Request) {
 		id := mux.Vars(r)["id"]
@@ -67,6 +74,59 @@ func UpdatePartHandler(repository *Repository) http.HandlerFunc {
 	}
 }
 
+// Patch Part api handler
+func PatchPartHandler(repository *Repository) http.HandlerFunc {
+	return func(w http.ResponseWriter, r *http.Request) {
+		id := mux.Vars(r)["id"]
+
+		// Get the existing part to update it
+		existingPart, err := repository.GetPart(id)
+		if err != nil {
+			http.Error(w, err.Error(), http.StatusNotFound)
+			return
+		}
+
+		var updates map[string]interface{}
+		if err := json.NewDecoder(r.Body).Decode(&updates); err != nil {
+			http.Error(w, err.Error(), http.StatusBadRequest)
+			return
+		}
+
+		// Apply updates to the existing part
+		for key, value := range updates {
+			switch key {
+			case "name":
+				existingPart.Name = value.(string)
+			case "price":
+				existingPart.Price = value.(float64)
+			case "description":
+				existingPart.Description = value.(string)
+			case "attributes":
+				existingPart.Attributes = value.(map[string]string)
+			case "images":
+				existingPart.Images = value.([]string)
+			case "sku":
+				existingPart.SKU = value.(string)
+			case "fitment_data":
+				existingPart.FitmentData = value.([]string)
+			case "location":
+				existingPart.Location = value.(string)
+			case "shipment":
+				existingPart.Shipment = value.(ShipmentInfo)
+			case "metadata":
+				existingPart.Metadata = value.(map[string]string)
+			}
+		}
+
+		if err := repository.UpdatePart(id, existingPart); err != nil {
+			http.Error(w, err.Error(), http.StatusInternalServerError)
+			return
+		}
+		w.WriteHeader(http.StatusNoContent)
+	}
+}
+
+// DeletePart Handler
 func DeletePartHandler(repository *Repository) http.HandlerFunc {
 	return func(w http.ResponseWriter, r *http.Request) {
 		id := mux.Vars(r)["id"]
@@ -79,6 +139,7 @@ func DeletePartHandler(repository *Repository) http.HandlerFunc {
 	}
 }
 
+// Get Version Handler
 func GetPartVersionHandler(repository *Repository) http.HandlerFunc {
 	return func(w http.ResponseWriter, r *http.Request) {
 		id := mux.Vars(r)["id"]
@@ -98,10 +159,16 @@ func GetPartVersionHandler(repository *Repository) http.HandlerFunc {
 	}
 }
 
-func SearchPartsHandler(repository *Repository) http.HandlerFunc {
+// List Part version Handler
+func ListPartVersionsHandler(repository *Repository) http.HandlerFunc {
 	return func(w http.ResponseWriter, r *http.Request) {
-		name := r.URL.Query().Get("name")
-		results := repository.SearchPartsByName(name)
-		json.NewEncoder(w).Encode(results)
+		id := mux.Vars(r)["id"]
+		versions, err := repository.ListPartVersions(id)
+		if err != nil {
+			http.Error(w, err.Error(), http.StatusNotFound)
+			return
+		}
+
+		json.NewEncoder(w).Encode(versions)
 	}
 }
