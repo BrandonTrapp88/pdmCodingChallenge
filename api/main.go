@@ -18,7 +18,7 @@ func main() {
 
 	headersOk := handlers.AllowedHeaders([]string{"X-Requested-With", "Content-Type", "Authorization"})
 	originsOk := handlers.AllowedOrigins([]string{"*"})
-	methodsOk := handlers.AllowedMethods([]string{"GET", "HEAD", "POST", "PUT", "OPTIONS", "DELETE"})
+	methodsOk := handlers.AllowedMethods([]string{"GET", "HEAD", "POST", "PUT", "OPTIONS", "DELETE", "Patch"})
 
 	log.Println("Starting server on :1710")
 	if err := http.ListenAndServe(":1710", handlers.CORS(originsOk, headersOk, methodsOk)(router)); err != nil {

@@ -61,7 +61,7 @@ const PartsList = () => {
   };
 
   const editPart = (part) => {
-    navigate(`/add?id=${part.id}`);
+    navigate(`/update?id=${part.id}`);
   };
 
   const getVersion = (id, version) => {
