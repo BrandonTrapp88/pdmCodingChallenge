@@ -3,6 +3,7 @@ package main
 import (
 	"database/sql"
 	"encoding/json"
+	"errors"
 	"fmt"
 	"log"
 	"time"
@@ -14,22 +15,8 @@ type Repository struct {
 	db *sql.DB
 }
 
-func NewRepository(dsn string) (*Repository, error) {
-	db, err := sql.Open("mysql", dsn)
-	if err != nil {
-		log.Fatalf("Unable to connect to database: %v", err)
-		return nil, fmt.Errorf("unable to connect to database: %v", err)
-	}
-	if err = db.Ping(); err != nil {
-		log.Fatalf("Unable to reach database: %v", err)
-		return nil, fmt.Errorf("unable to reach database: %v", err)
-	}
-	repo := &Repository{db: db}
-	if err := repo.createTables(); err != nil {
-		log.Fatalf("Unable to create tables: %v", err)
-		return nil, fmt.Errorf("unable to create tables: %v", err)
-	}
-	return repo, nil
+func NewRepository(db *sql.DB) *Repository {
+	return &Repository{db: db}
 }
 
 // create db tables here
@@ -83,12 +70,11 @@ func (r *Repository) createTables() error {
 
 // function to create Part and insert information into db
 func (r *Repository) CreatePart(part Part) (string, error) {
-	// Check if part with same details exists
-	existingPart, err := r.findPartByDetails(part)
+	// Check if part with same SKU exists
+	existingPart, err := r.findPartBySKU(part.SKU)
 	if err == nil && existingPart.ID != "" {
-		if err := r.DeletePart(existingPart.ID); err != nil {
-			return "", err
-		}
+		// Part exists, update the existing part
+		return r.updateExistingPart(existingPart.ID, part)
 	}
 
 	// Marshal JSON fields
@@ -141,48 +127,70 @@ func (r *Repository) CreatePart(part Part) (string, error) {
 	return fmt.Sprintf("%d", partID), nil
 }
 
-func (r *Repository) findPartByDetails(part Part) (Part, error) {
-	query := `SELECT id, name, images, sku, description, price, attributes, fitment_data, location, shipment, metadata FROM parts WHERE name = ? AND sku = ? AND price = ?`
-	row := r.db.QueryRow(query, part.Name, part.SKU, part.Price)
-
-	var existingPart Part
-	var images, attributes, fitmentData, shipment, metadata []byte
-	if err := row.Scan(&existingPart.ID, &existingPart.Name, &images, &existingPart.SKU, &existingPart.Description, &existingPart.Price, &attributes, &fitmentData, &existingPart.Location, &shipment, &metadata); err != nil {
-		if err == sql.ErrNoRows {
-			return Part{}, nil // Part not found
-		}
-		return Part{}, err
+func (r *Repository) updateExistingPart(id string, part Part) (string, error) {
+	// Marshal JSON fields
+	images, err := json.Marshal(part.Images)
+	if err != nil {
+		return "", err
+	}
+	attributes, err := json.Marshal(part.Attributes)
+	if err != nil {
+		return "", err
+	}
+	fitmentData, err := json.Marshal(part.FitmentData)
+	if err != nil {
+		return "", err
+	}
+	shipment, err := json.Marshal(part.Shipment)
+	if err != nil {
+		return "", err
+	}
+	metadata, err := json.Marshal(part.Metadata)
+	if err != nil {
+		return "", err
 	}
 
-	if err := json.Unmarshal(images, &existingPart.Images); err != nil {
-		return Part{}, err
+	// Get the current version number
+	var currentVersion int
+	query := `SELECT COUNT(*) FROM part_versions WHERE part_id = ?`
+	err = r.db.QueryRow(query, id).Scan(&currentVersion)
+	if err != nil {
+		return "", err
 	}
-	if err := json.Unmarshal(attributes, &existingPart.Attributes); err != nil {
-		return Part{}, err
-	}
-	if err := json.Unmarshal(fitmentData, &existingPart.FitmentData); err != nil {
-		return Part{}, err
-	}
-	if err := json.Unmarshal(shipment, &existingPart.Shipment); err != nil {
-		return Part{}, err
-	}
-	if err := json.Unmarshal(metadata, &existingPart.Metadata); err != nil {
-		return Part{}, err
+	currentVersion++
+
+	// Insert a new version in the part_versions table
+	versionQuery := `
+		INSERT INTO part_versions (part_id, version, timestamp, name, images, sku, description, price, attributes, fitment_data, location, shipment, metadata)
+		VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
+	`
+	_, err = r.db.Exec(versionQuery, id, currentVersion, time.Now(), part.Name, images, part.SKU, part.Description, part.Price, attributes, fitmentData, part.Location, shipment, metadata)
+	if err != nil {
+		return "", err
 	}
 
-	return existingPart, nil
+	// Update the existing part in the parts table
+	updateQuery := `
+		UPDATE parts SET name = ?, images = ?, sku = ?, description = ?, price = ?, attributes = ?, fitment_data = ?, location = ?, shipment = ?, metadata = ?
+		WHERE id = ?
+	`
+	_, err = r.db.Exec(updateQuery, part.Name, images, part.SKU, part.Description, part.Price, attributes, fitmentData, part.Location, shipment, metadata, id)
+	if err != nil {
+		return "", err
+	}
+
+	return id, nil
 }
 
-// get part from db
-func (r *Repository) GetPart(id string) (Part, error) {
-	query := `SELECT id, name, images, sku, description, price, attributes, fitment_data, location, shipment, metadata FROM parts WHERE id = ?`
-	row := r.db.QueryRow(query, id)
+func (r *Repository) findPartBySKU(sku string) (Part, error) {
+	query := `SELECT id, name, images, sku, description, price, attributes, fitment_data, location, shipment, metadata FROM parts WHERE sku = ?`
+	row := r.db.QueryRow(query, sku)
 
 	var part Part
 	var images, attributes, fitmentData, shipment, metadata []byte
 	if err := row.Scan(&part.ID, &part.Name, &images, &part.SKU, &part.Description, &part.Price, &attributes, &fitmentData, &part.Location, &shipment, &metadata); err != nil {
 		if err == sql.ErrNoRows {
-			return Part{}, fmt.Errorf("part not found")
+			return Part{}, nil // Part not found
 		}
 		return Part{}, err
 	}
@@ -206,7 +214,38 @@ func (r *Repository) GetPart(id string) (Part, error) {
 	return part, nil
 }
 
-// update part in db
+func (r *Repository) GetPart(id string) (Part, error) {
+	query := `SELECT id, name, images, sku, description, price, attributes, fitment_data, location, shipment, metadata FROM parts WHERE id = ?`
+	row := r.db.QueryRow(query, id)
+
+	var part Part
+	var images, attributes, fitmentData, shipment, metadata []byte
+	if err := row.Scan(&part.ID, &part.Name, &images, &part.SKU, &part.Description, &part.Price, &attributes, &fitmentData, &part.Location, &shipment, &metadata); err != nil {
+		if err == sql.ErrNoRows {
+			return Part{}, errors.New("part not found")
+		}
+		return Part{}, err
+	}
+
+	if err := json.Unmarshal(images, &part.Images); err != nil {
+		return Part{}, err
+	}
+	if err := json.Unmarshal(attributes, &part.Attributes); err != nil {
+		return Part{}, err
+	}
+	if err := json.Unmarshal(fitmentData, &part.FitmentData); err != nil {
+		return Part{}, err
+	}
+	if err := json.Unmarshal(shipment, &part.Shipment); err != nil {
+		return Part{}, err
+	}
+	if err := json.Unmarshal(metadata, &part.Metadata); err != nil {
+		return Part{}, err
+	}
+
+	return part, nil
+}
+
 func (r *Repository) UpdatePart(id string, part Part) error {
 	// Marshal JSON fields
 	images, err := json.Marshal(part.Images)
@@ -262,7 +301,6 @@ func (r *Repository) UpdatePart(id string, part Part) error {
 	return nil
 }
 
-// Delete part function
 func (r *Repository) DeletePart(id string) error {
 	query := `DELETE FROM parts WHERE id = ?`
 	_, err := r.db.Exec(query, id)
@@ -279,7 +317,6 @@ func (r *Repository) DeletePart(id string) error {
 	return nil
 }
 
-// List Part Function
 func (r *Repository) ListParts() ([]Part, error) {
 	query := `SELECT id, name, images, sku, description, price, attributes, fitment_data, location, shipment, metadata FROM parts`
 	rows, err := r.db.Query(query)
@@ -318,7 +355,6 @@ func (r *Repository) ListParts() ([]Part, error) {
 	return parts, nil
 }
 
-// Get Part Version
 func (r *Repository) GetPartVersion(id string, version int) (Part, error) {
 	query := `SELECT name, images, sku, description, price, attributes, fitment_data, location, shipment, metadata FROM part_versions WHERE part_id = ? AND version = ?`
 	row := r.db.QueryRow(query, id, version)
@@ -327,7 +363,7 @@ func (r *Repository) GetPartVersion(id string, version int) (Part, error) {
 	var images, attributes, fitmentData, shipment, metadata []byte
 	if err := row.Scan(&part.Name, &images, &part.SKU, &part.Description, &part.Price, &attributes, &fitmentData, &part.Location, &shipment, &metadata); err != nil {
 		if err == sql.ErrNoRows {
-			return Part{}, fmt.Errorf("version not found")
+			return Part{}, errors.New("version not found")
 		}
 		return Part{}, err
 	}
@@ -351,7 +387,6 @@ func (r *Repository) GetPartVersion(id string, version int) (Part, error) {
 	return part, nil
 }
 
-// list Part Version
 func (r *Repository) ListPartVersions(id string) ([]PartVersion, error) {
 	query := `SELECT version, timestamp FROM part_versions WHERE part_id = ? ORDER BY version`
 	rows, err := r.db.Query(query, id)

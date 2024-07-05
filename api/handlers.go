@@ -142,13 +142,10 @@ func DeletePartHandler(repository *Repository) http.HandlerFunc {
 // Get Version Handler
 func GetPartVersionHandler(repository *Repository) http.HandlerFunc {
 	return func(w http.ResponseWriter, r *http.Request) {
-		vars := mux.Vars(r)
-		id := vars["id"]
-		versionStr := vars["version"]
-
-		version, err := strconv.Atoi(versionStr)
+		id := mux.Vars(r)["id"]
+		version, err := strconv.Atoi(mux.Vars(r)["version"])
 		if err != nil {
-			http.Error(w, "Invalid version number", http.StatusBadRequest)
+			http.Error(w, err.Error(), http.StatusBadRequest)
 			return
 		}
 

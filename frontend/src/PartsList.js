@@ -51,14 +51,25 @@ const PartsList = () => {
 
   const showVersion = (id, version) => {
     axios.get(`http://localhost:1710/parts/${id}/version/${version}`)
-      .then(response => {
-        const part = response.data;
-        setVersionData(part);
-      })
-      .catch(error => {
-        console.error('There was an error fetching the part version!', error);
-      });
-  };
+        .then(response => {
+            const part = response.data;
+            alert(`
+                Name: ${part.name}
+                Price: ${part.price}
+                Images: ${part.images ? part.images.join(', ') : 'None'}
+                SKU: ${part.sku}
+                Description: ${part.description}
+                Attributes: ${part.attributes ? Object.entries(part.attributes).map(([key, value]) => `${key}: ${value}`).join(', ') : 'None'}
+                Fitment Data: ${part.fitmentData ? part.fitmentData.join(', ') : 'None'}
+                Location: ${part.location}
+                Shipment: Weight: ${part.shipment.weight}, Size: ${part.shipment.size}, Hazardous: ${part.shipment.hazardous ? 'Yes' : 'No'}, Fragile: ${part.shipment.fragile ? 'Yes' : 'No'}
+                Metadata: ${part.metadata ? Object.entries(part.metadata).map(([key, value]) => `${key}: ${value}`).join(', ') : 'None'}
+            `);
+        })
+        .catch(error => {
+            console.error('There was an error fetching the part version!', error);
+        });
+};
 
   const editPart = (part) => {
     navigate(`/update?id=${part.id}`);
