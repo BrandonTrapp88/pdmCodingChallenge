@@ -54,13 +54,15 @@ Open another terminal and navigate to the frontend directory:
 
 ``` sh
 cd ../frontend
-Install npm dependencies:
 ``` 
+Install npm dependencies:
+
 ``` sh
 
 npm install
-Run the frontend server:
 ``` 
+Run the frontend server:
+
 ``` sh
 
 npm start
