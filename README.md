@@ -97,7 +97,8 @@ Run the API server
 
 ``` sh
 
-make api
+make api DB_USER=USERNAME DB_PASSWORD=PASSWORD
+``` 
 ```
 Build the API server
 
@@ -133,7 +134,7 @@ Run both API and frontend
 
 ``` sh
 
-make all
+make all DB_USER=USERNAME DB_PASSWORD=PASSWORD
 ``` 
 Build both API and frontend
 
