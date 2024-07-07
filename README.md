@@ -99,7 +99,6 @@ Run the API server
 
 make api DB_USER=USERNAME DB_PASSWORD=PASSWORD
 ``` 
-```
 Build the API server
 
 ``` sh
