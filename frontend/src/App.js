@@ -4,7 +4,7 @@ import AddPartForm from './AddPartForm';
 import PartsList from './PartsList';
 import SearchPage from './SearchPage';
 import UpdatePartForm from './UpdatePartForm';
-import NavBar from './NavBar'; // Ensure NavBar is imported
+import NavBar from './NavBar'; 
 
 const App = () => {
   return (
