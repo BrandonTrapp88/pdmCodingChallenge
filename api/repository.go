@@ -4,7 +4,7 @@ import (
 	"database/sql"
 	"encoding/json"
 	"fmt"
-	"log"
+
 	"sync"
 	"time"
 
@@ -55,55 +55,6 @@ func NewRepository(db *sql.DB) *Repository {
 		nextVer: 1,
 		db:      db,
 	}
-}
-
-// create db tables here
-func (r *Repository) createTables() error {
-	partsTable := `
-	CREATE TABLE IF NOT EXISTS parts (
-		id INT AUTO_INCREMENT PRIMARY KEY,
-		name VARCHAR(255) NOT NULL,
-		images JSON,
-		sku VARCHAR(255),
-		description TEXT,
-		price DECIMAL(10, 2),
-		attributes JSON,
-		fitment_data JSON,
-		location VARCHAR(255),
-		shipment JSON,
-		metadata JSON
-	);`
-	_, err := r.db.Exec(partsTable)
-	if err != nil {
-		log.Printf("Error creating parts table: %v", err)
-		return fmt.Errorf("error creating parts table: %v", err)
-	}
-
-	partVersionsTable := `
-	CREATE TABLE IF NOT EXISTS part_versions (
-		version_id INT AUTO_INCREMENT PRIMARY KEY,
-		part_id INT,
-		version INT,
-		timestamp TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
-		name VARCHAR(255),
-		images JSON,
-		sku VARCHAR(255),
-		description TEXT,
-		price DECIMAL(10, 2),
-		attributes JSON,
-		fitment_data JSON,
-		location VARCHAR(255),
-		shipment JSON,
-		metadata JSON,
-		FOREIGN KEY (part_id) REFERENCES parts(id)
-	);`
-	_, err = r.db.Exec(partVersionsTable)
-	if err != nil {
-		log.Printf("Error creating part_versions table: %v", err)
-		return fmt.Errorf("error creating part_versions table: %v", err)
-	}
-
-	return nil
 }
 
 // CreatePart Creates Part stores it in db
@@ -419,4 +370,41 @@ func (r *Repository) ListPartVersions(id string) ([]PartVersion, error) {
 		versions = append(versions, version)
 	}
 	return versions, nil
+}
+
+func (r *Repository) SearchParts(query string) ([]Part, error) {
+	query = "%" + query + "%"
+	rows, err := r.db.Query(`SELECT id, name, images, sku, description, price, attributes, fitment_data, location, shipment, metadata FROM parts WHERE name LIKE ? OR description LIKE ?`, query, query)
+	if err != nil {
+		return nil, err
+	}
+	defer rows.Close()
+
+	var parts []Part
+	for rows.Next() {
+		var part Part
+		var images, attributes, fitmentData, shipment, metadata []byte
+		if err := rows.Scan(&part.ID, &part.Name, &images, &part.SKU, &part.Description, &part.Price, &attributes, &fitmentData, &part.Location, &shipment, &metadata); err != nil {
+			return nil, err
+		}
+
+		if err := json.Unmarshal(images, &part.Images); err != nil {
+			return nil, err
+		}
+		if err := json.Unmarshal(attributes, &part.Attributes); err != nil {
+			return nil, err
+		}
+		if err := json.Unmarshal(fitmentData, &part.FitmentData); err != nil {
+			return nil, err
+		}
+		if err := json.Unmarshal(shipment, &part.Shipment); err != nil {
+			return nil, err
+		}
+		if err := json.Unmarshal(metadata, &part.Metadata); err != nil {
+			return nil, err
+		}
+
+		parts = append(parts, part)
+	}
+	return parts, nil
 }

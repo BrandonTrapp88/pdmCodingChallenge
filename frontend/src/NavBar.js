@@ -13,7 +13,7 @@ const NavBar = () => {
           <Link to="/">Parts List</Link>
         </li>
         <li>
-          {/*<Link to="/search">Search Parts</Link> {/* Add search link */}
+          <Link to="/search">Search Parts</Link> 
         </li>
       </ul>
     </nav>

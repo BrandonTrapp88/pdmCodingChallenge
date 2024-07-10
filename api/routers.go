@@ -14,6 +14,7 @@ func NewRouter(repository *Repository) *mux.Router {
 	router.HandleFunc("/parts/{id}", DeletePartHandler(repository)).Methods("DELETE")
 	router.HandleFunc("/parts/{id}/version/{version}", GetPartVersionHandler(repository)).Methods("GET")
 	router.HandleFunc("/parts/{id}/versions", ListPartVersionsHandler(repository)).Methods("GET")
+	router.HandleFunc("/search", SearchPartsHandler(repository)).Methods("GET")
 
 	return router
 }

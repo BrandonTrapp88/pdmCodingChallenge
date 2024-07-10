@@ -174,3 +174,22 @@ func ListPartVersionsHandler(repository *Repository) http.HandlerFunc {
 		json.NewEncoder(w).Encode(versions)
 	}
 }
+
+func SearchPartsHandler(repository *Repository) http.HandlerFunc {
+	return func(w http.ResponseWriter, r *http.Request) {
+		query := r.URL.Query().Get("q")
+		if query == "" {
+			http.Error(w, "Query parameter 'q' is required", http.StatusBadRequest)
+			return
+		}
+
+		parts, err := repository.SearchParts(query)
+		if err != nil {
+			http.Error(w, err.Error(), http.StatusInternalServerError)
+			return
+		}
+
+		w.Header().Set("Content-Type", "application/json")
+		json.NewEncoder(w).Encode(parts)
+	}
+}

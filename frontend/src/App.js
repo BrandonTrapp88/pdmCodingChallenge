@@ -10,7 +10,7 @@ const App = () => {
   return (
     <Router>
       <div>
-        <NavBar /> {/* Add the NavBar here */}
+        <NavBar /> {}
         <Routes>
           <Route path="/" element={<PartsList />} />
           <Route path="/add" element={<AddPartForm />} />
